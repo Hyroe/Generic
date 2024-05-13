@@ -1,0 +1,10 @@
+^C:\USERS\RGTER\DOCUMENTS\PROGRAMMATION\GENERIC2\CMAKELISTS.TXT
+setlocal
+"C:\Program Files\CMake\bin\cmake.exe" -SC:/Users/rgter/Documents/programmation/Generic2 -BC:/Users/rgter/Documents/programmation/Generic2/build --check-stamp-file C:/Users/rgter/Documents/programmation/Generic2/build/CMakeFiles/generate.stamp
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal & call :cmErrorLevel %errorlevel% & goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd

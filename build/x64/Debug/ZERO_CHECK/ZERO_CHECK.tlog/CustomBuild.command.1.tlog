@@ -1,0 +1,10 @@
+^C:\USERS\RGTER\DOCUMENTS\PROGRAMMATION\GENERIC2\BUILD\CMAKEFILES\C883071D44A473EA3F8AE77D532F6C20\GENERATE.STAMP.RULE
+setlocal
+"C:\Program Files\CMake\bin\cmake.exe" -SC:/Users/rgter/Documents/programmation/Generic2 -BC:/Users/rgter/Documents/programmation/Generic2/build --check-stamp-list CMakeFiles/generate.stamp.list --vs-solution-file C:/Users/rgter/Documents/programmation/Generic2/build/GameEngine.sln
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal & call :cmErrorLevel %errorlevel% & goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd
