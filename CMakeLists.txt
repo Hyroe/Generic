@@ -11,8 +11,7 @@ file(GLOB_RECURSE LIB "${CMAKE_SOURCE_DIR}/lib/*.lib")
 
 add_subdirectory(demo)
 
-add_executable(Generic ${SRC} ${INCLUDE})
-target_link_libraries(Generic ${LIB})
+add_library(Generic ${SRC} ${INCLUDE})
 
 target_include_directories(Generic PRIVATE include)
 set_target_properties(Generic PROPERTIES LINKER_LANGUAGE CXX)

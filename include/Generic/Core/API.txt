@@ -1,0 +1,2 @@
+Core
+    Logger : use this class to show debbuging informations on the console.

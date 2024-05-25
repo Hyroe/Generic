@@ -1,0 +1,10 @@
+Util
+    GRTTI:
+	 typeName<T>() : query the type name as a string.
+
+    Util:
+	NameAllocator : a class used to allocate and free names which are simply integers, this class interacts with the logger 
+		       so you know when you misuse its public methods.
+
+    VLUI64 : stands for variable length unsigned integer 64 bits, implemented with an array of 64 bits unsigned integers, it is used to uniquely identify a type. 
+	     You can use the bitwise OR operator on this type.     

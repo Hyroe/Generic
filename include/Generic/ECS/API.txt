@@ -1,0 +1,23 @@
+ECS
+   SystemManager : a static class used to manage systems, a system is a module which is executable and whose aim is to process entities. 
+		   You can swap between different system implementations. (i.e if you added a Renderer system, you can load two distinct implementations 
+		   (one for opengl, one for vulkan) and swap between them at run time). 
+
+		 loadSystem(string system, string impl) : loads an implementation into a system (use exactly the type names as tring).
+		 
+		 runSystem(string) : adds a system into the list of systems executed by the run method.
+		 
+		 stopSystem(string) : removes a system from the list of systems executed by the run method.
+
+		 run() : runs all specified systems once.
+   
+   System : the base class for all systems.
+   
+   ComponentManager :
+		   registerComponentType<T>() : registers a subclass of Component to be useable by the ECS.
+
+		   typeMask<T>() : returns a VLUI64 which is uniquely identified for each component type.
+
+   Component : the base class for all component types.
+		      
+	
