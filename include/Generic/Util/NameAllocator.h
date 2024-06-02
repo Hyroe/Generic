@@ -1,4 +1,5 @@
-#pragma once
+#ifndef NAME_ALLOCATOR_H
+#define NAME_ALLOCATOR_H
 
 #include <unordered_map>
 
@@ -7,6 +8,8 @@ namespace Generic {
 		class NameAllocator
 		{
 		public:
+			
+
 			NameAllocator(int _maxCount) : maxCount(_maxCount)
 			{
 
@@ -23,3 +26,5 @@ namespace Generic {
 		};
 	}
 }
+
+#endif 

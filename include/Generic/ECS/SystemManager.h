@@ -6,6 +6,7 @@
 #include <memory>
 #include "Generic/Core/Logger.h"
 #include "Generic/Util/RTTI.h"
+#include "Generic/Util/Util.h"
 #include "System.h"
 
 namespace Generic {
@@ -21,11 +22,7 @@ namespace Generic {
 
 			template <typename T>
 			static void removeSystem() {
-				if (systems.find(GRTTI::typeName<T>()) == systems.end())
-				{
-					Logger::logError("no matching system for : " + GRTTI::typeName<T>());
-					return;
-				}
+				Util::assertNoAbort(systems.find(GRTTI::typeName<T>()) != systems.end(), "no matching system for : " + GRTTI::typeName<T>());
 				systems.erase(GRTTI::typeName<T>());
 			}
 
@@ -34,21 +31,14 @@ namespace Generic {
 			template <typename T>
 			static void addImpl() {
 				T sys = T();
-				if (!dynamic_cast<System*>(&sys))
-				{
-					Logger::logError(GRTTI::typeName<T>() + " is not a System");
-					return;
-				}
+				Util::assertNoAbort(dynamic_cast<System*>(&sys), GRTTI::typeName<T>() + " is not a System");
 				implementations[GRTTI::typeName<T>()] = std::make_unique<T>();
 			}
 
 			template <typename T>
 			static void removeImpl() {
-				if (implementations.find(GRTTI::typeName<T>()) == implementations.end())
-				{
-					Logger::logError("no matching implementation for : " + GRTTI::typeName<T>());
-					return;
-				}
+				Util::assertNoAbort(implementations.find(GRTTI::typeName<T>()) != implementations.end(), 
+					"no matching implementation for : " + GRTTI::typeName<T>());
 				implementations.erase(GRTTI::typeName<T>());
 			}
 

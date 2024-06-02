@@ -6,32 +6,37 @@
 #include "Generic/Util/NameAllocator.h"
 #include "Generic/ECS/Component.h"
 #include "Generic/Core/Logger.h"
+#include "Generic/ECS/PoolAllocator.h"
+#include "Generic/Util/Util.h"
 
 namespace Generic {
 	namespace ECS {
 		class ComponentManager {
 		public:
 			template <typename T>
-			static void registerComponentType() {
-				if constexpr (std::is_base_of<Component, T>::value)
-				{
-					typeIDs[GRTTI::typeName<T>()] = typeIDsAllocator.getName();
-				}
+			static Util::VLUI64 typeMask() {
+				return GRTTI::typeMask(typeId<T>());
 			}
 
 			template <typename T>
-			static Util::VLUI64 typeMask() {
-				if (typeIDs.find(GRTTI::typeName<T>()) == typeIDs.end())
+			static int typeId() {
+				Util::assertNoAbort(std::is_base_of<Component, T>::value, GRTTI::typeName<T>() + " is not a component type");
+				static int componentTypeID = componentTypeIDCount++;
+				return componentTypeID;
+			}
+
+			static Component* getComponent(int entityTypeId, int componentTypeId) {
+				if (poolAllocators.find(componentTypeId) == poolAllocators.end())
 				{
-					Logger::logError("component type " + GRTTI::typeName<T>() " not found");
-					return Util::VLUI64();
+					Core::Logger::logError("component type not registered");
+					return nullptr;
 				}
-				return GRTTI::typeMask(typeIDs.at(GRTTI::typeName<T>()));
+				poolAllocators[componentTypeId].getComponent(entityTypeId);
 			}
 
 		private:
-			static Util::NameAllocator typeIDsAllocator;
-			static std::unordered_map<std::string, unsigned int> typeIDs;
+			static int componentTypeIDCount;
+			static std::unordered_map<int, PoolAllocator<Component>> poolAllocators;
 		};
 	}
 }

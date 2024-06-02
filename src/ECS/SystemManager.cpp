@@ -2,29 +2,33 @@
 #include <utility>
 
 void Generic::ECS::SystemManager::loadSystem(std::string&& system, std::string&& impl) {
+#ifndef NDEBUG
 	if (systems.find(system) == systems.end())
 	{
-		Logger::logError("no matching system for : " + system);
+		Core::Logger::logError("no matching system for : " + system);
 		return;
 	}
 	if (implementations.find(impl) == implementations.end())
 	{
-		Logger::logError("no matching system for : " + impl);
+		Core::Logger::logError("no matching system for : " + impl);
 		return;
 	}
+#endif 
 
 	if (validityChecks[system](implementations[impl].get()))
 		systems[system] = impl;
 	else
-		Logger::logError(impl + " is not a " + system);
+		Core::Logger::logError(impl + " is not a " + system);
 }
 
 void Generic::ECS::SystemManager::runSystem(std::string&& sys) {
+#ifndef NDEBUG
 	if (systems.find(sys) == systems.end())
 	{
-		Logger::logError("no matching system for : " + sys);
+		Core::Logger::logError("no matching system for : " + sys);
 		return;
 	}
+#endif
 	switch (runningSystems.size())
 	{
 	case 0:
@@ -40,47 +44,53 @@ void Generic::ECS::SystemManager::runSystem(std::string&& sys) {
 }
 
 void Generic::ECS::SystemManager::setExecutionOrder(std::string&& sys, unsigned int order) {
+#ifndef NDEBUG
 	if (systems.find(sys) == systems.end())
 	{
-		Logger::logError("no matching system for : " + sys);
+		Core::Logger::logError("no matching system for : " + sys);
 		return;
 	}
 	if (runningSystems.find(systemExecutionOrder[sys]) == runningSystems.end())
 	{
-		Logger::logError("system : " + sys + " not currently running");
+		Core::Logger::logError("system : " + sys + " not currently running");
 		return;
 	}
 	if (runningSystems.find(order) == runningSystems.end())
 	{
-		Logger::logError("specified order out of bounds");
+		Core::Logger::logError("specified order out of bounds");
 		return;
 	}
+#endif
+
 	if (runningSystems[order] == sys)
 		return;
+
 	swapExecutionOrder(std::move(sys), std::move(runningSystems[order]));
 }
 
 void Generic::ECS::SystemManager::swapExecutionOrder(std::string&& sys1, std::string&& sys2) {
+#ifndef NDEBUG
 	if (systems.find(sys1) == systems.end())
 	{
-		Logger::logError("no matching system for : " + sys1);
+		Core::Logger::logError("no matching system for : " + sys1);
 		return;
 	}
 	if (systems.find(sys2) == systems.end())
 	{
-		Logger::logError("no matching system for : " + sys2);
+		Core::Logger::logError("no matching system for : " + sys2);
 		return;
 	}
 	if (runningSystems.find(systemExecutionOrder[sys1]) == runningSystems.end())
 	{
-		Logger::logError("system : " + sys1 + " not currently running");
+		Core::Logger::logError("system : " + sys1 + " not currently running");
 		return;
 	}
 	if (runningSystems.find(systemExecutionOrder[sys2]) == runningSystems.end())
 	{
-		Logger::logError("system : " + sys2 + " not currently running");
+		Core::Logger::logError("system : " + sys2 + " not currently running");
 		return;
 	}
+#endif
 
 	runningSystems[systemExecutionOrder[sys1]] = sys2;
 	runningSystems[systemExecutionOrder[sys2]] = sys1;
@@ -91,16 +101,18 @@ void Generic::ECS::SystemManager::swapExecutionOrder(std::string&& sys1, std::st
 }
 
 void Generic::ECS::SystemManager::stopSystem(std::string&& sys) {
+#ifndef NDEBUG
 	if (systems.find(sys) == systems.end())
 	{
-		Logger::logError("no matching system for : " + sys);
+		Core::Logger::logError("no matching system for : " + sys);
 		return;
 	}
 	if (runningSystems.find(systemExecutionOrder[sys]) == runningSystems.end())
 	{
-		Logger::logError("system : " + sys + " not currently running");
+		Core::Logger::logError("system : " + sys + " not currently running");
 		return;
 	}
+#endif
 	runningSystems.erase(systemExecutionOrder[sys]);
 }
 

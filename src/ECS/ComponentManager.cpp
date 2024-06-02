@@ -1,4 +1,4 @@
 #include "Generic/ECS/ComponentManager.h"
 
-Generic::Util::NameAllocator Generic::ECS::ComponentManager::typeIDsAllocator = Generic::Util::NameAllocator(20);
-std::unordered_map<std::string, unsigned int> Generic::ECS::ComponentManager::typeIDs;
+int Generic::ECS::ComponentManager::componentTypeIDCount = 0;;
+std::unordered_map<int, Generic::ECS::PoolAllocator<Component>> Generic::ECS::ComponentManager::poolAllocators;
