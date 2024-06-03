@@ -18,6 +18,7 @@ namespace Generic {
 
 			}
 			int addEntity(std::vector<int> componentTypeIdArray);
+			bool removeEntity(int entityLocalId);
 
 		private:
 			const int id;

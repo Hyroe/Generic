@@ -13,6 +13,7 @@ namespace Generic {
 		{
 		public:
 			static int addEntity(int entityTypeId);
+			static bool removeEntity(int entityId);
 
 		private:
 			static std::unordered_map<int, Archetype> archetypes;
