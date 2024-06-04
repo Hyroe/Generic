@@ -40,7 +40,7 @@ namespace Generic{
 			return addEntity(entityTypeId<T, Types...>());
 		}
 
-		static constexpr int maxEntityTypeCount = 40;
+		static const int maxEntityTypeCount = 40;
 
 	private:
 		static int addEntity(int entityTypeId);

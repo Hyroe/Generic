@@ -9,3 +9,7 @@ int Generic::Archetype::addEntity(int entityTypeId) {
 		entities[componentTypeId][entityId] = ComponentManager::getComponent(entityTypeId, componentTypeId); });
 	return entityId;
 }
+
+void Generic::Archetype::removeEntity(int entityLocalId) {
+
+}

@@ -12,7 +12,7 @@ namespace Generic {
 		{
 		public:
 			static int addEntity(int entityTypeId);
-			static bool removeEntity(int entityId);
+			static void removeEntity(int entityId);
 
     private:
       static constexpr int maxEntityCount = 20;
@@ -20,7 +20,7 @@ namespace Generic {
       static std::unordered_map<int, std::vector<int>> componentTypeIdsList;
       static NameAllocator typeIDsAllocator;
       static NameAllocator entityIDsAllocator;
-      static std::pair<int, int> entityLocations[];
+      static std::unordered_map<int, std::pair<int, int>> entityLocations;
 	};
 }
 
