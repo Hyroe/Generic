@@ -11,44 +11,43 @@
 #include <unordered_map>
 
 namespace Generic{
-	namespace ECS {
-		class EntityManager
-		{
-		public:
-			template <typename T, typename ...Types>
-			static Util::VLUI64 entityTypeMask() {
-				if constexpr(sizeof...(Types) != 0)
-					static Util::VLUI64 entityTypeMask = (ComponentManager::typeMask<Types>() | ...) | ComponentManager::typeMask<T>();
-				else
-					static Util::VLUI64 entityTypeMask = ComponentManager::typeMask<T>();
-				return entityTypeMask;
-			}
+	class EntityManager
+	{
+	public:
+		template <typename T, typename ...Types>
+		static VLUI64 entityTypeMask() {
+			if constexpr (sizeof...(Types) != 0)
+				static VLUI64 entityTypeMask = (ComponentManager::typeMask<Types>() | ...) | ComponentManager::typeMask<T>();
+			else
+				static VLUI64 entityTypeMask = ComponentManager::typeMask<T>();
+			return entityTypeMask;
+		}
 
-			static Util::VLUI64 entityTypeMask(int entityTypeId) {
-				Util::assertNoAbort(entityTypeMasks.find(entityTypeId) == entityTypeMasks.end(), "entityTypeMask :: entityTypeId not found");
-				return entityTypeMasks[entityTypeId];
-			}
+		static VLUI64 entityTypeMask(int entityTypeId) {
+			assertNoAbort([&entityTypeId]()->bool {return entityTypeMasks.find(entityTypeId) != entityTypeMasks.end(); }, 
+				"EntityManager :: entityTypeMask :: entityTypeId not found");
+			return entityTypeMasks[entityTypeId];
+		}
 
-			template <typename T, typename ...Types>
-			static int entityTypeId() {
-				static int typeID = (entityTypeMasks[entityTypeIDCount] = entityTypeMask<T, Types...>(), entityTypeIDCount++);
-				return typeID;
-			}
+		template <typename T, typename ...Types>
+		static int entityTypeId() {
+			static int typeID = (entityTypeMasks[entityTypeIDCount] = entityTypeMask<T, Types...>(), entityTypeIDCount++);
+			return typeID;
+		}
 
-			template <typename T, typename ...Types>
-			static int addEntity() {
-				return addEntity(entityTypeId<T, Types...>());
-			}
+		template <typename T, typename ...Types>
+		static int addEntity() {
+			return addEntity(entityTypeId<T, Types...>());
+		}
 
-			static constexpr int maxEntityTypeCount = 40;
+		static constexpr int maxEntityTypeCount = 40;
 
-		private:
-			static int addEntity(int entityTypeId);
+	private:
+		static int addEntity(int entityTypeId);
 
-			static int entityTypeIDCount;
-			static std::unordered_map<int, Util::VLUI64> entityTypeMasks;
-		};
-	}
+		static int entityTypeIDCount;
+		static std::unordered_map<int, VLUI64> entityTypeMasks;
+	};
 }
 
 #endif 

@@ -7,25 +7,16 @@
 #include "Generic/Util/NameAllocator.h"
 
 namespace Generic {
-	namespace ECS {
-		class Archetype
-		{
-		public:
-			Archetype() : id(0) {
+	class Archetype
+	{
+	public:
+		int addEntity(int entityTypeId);
 
-			}
-			Archetype(int _id) : id(_id) {
-
-			}
-			int addEntity(std::vector<int> componentTypeIdArray);
-
-		private:
-			const int id;
-			static const int maxEntityCountPerArchetype = 20;
-			Util::NameAllocator entityIdAllocator = Util::NameAllocator::NameAllocator(maxEntityCountPerArchetype);
-			std::unordered_map<int, std::vector<Component*>> entities;
-		};
-	}
+	private:
+		static const int maxEntityCountPerArchetype = 20;
+		NameAllocator entityIdAllocator = NameAllocator::NameAllocator(maxEntityCountPerArchetype);
+		std::unordered_map<int, Component*[maxEntityCountPerArchetype]> entities;
+	};
 }
 
 #endif 

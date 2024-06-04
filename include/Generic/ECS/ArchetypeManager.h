@@ -8,20 +8,19 @@
 #include <vector>
 
 namespace Generic {
-	namespace ECS {
-		class ArchetypeManager
-		{
-		public:
-			static int addEntity(int entityTypeId);
+	class ArchetypeManager
+	{
+	public:
+		static int addEntity(int entityTypeId);
 
-		private:
-			static std::unordered_map<int, Archetype> archetypes;
-			static std::unordered_map<int, std::vector<int>> componentTypeIdsList;
-			static Util::NameAllocator typeIDsAllocator;
-			static Util::NameAllocator entityIDsAllocator;
-			static std::unordered_map<int, std::pair<int, int>> entityLocations;
-		};
-	}
+	private:
+		static constexpr int maxEntityCount = 20;
+		static Archetype archetypes[];
+		static std::unordered_map<int, std::vector<int>> componentTypeIdsList;
+		static NameAllocator typeIDsAllocator;
+		static NameAllocator entityIDsAllocator;
+		static std::pair<int, int> entityLocations[];
+	};
 }
 
 #endif 

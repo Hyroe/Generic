@@ -4,7 +4,9 @@
 class Component
 {
 public:
+	virtual void reset() {
 
+	}
 };
 
 #endif 
