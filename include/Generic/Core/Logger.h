@@ -5,15 +5,13 @@
 #include <iostream>
 
 namespace Generic {
-	namespace Core {
-		class Logger
-		{
-		public:
-			static void logError(std::string&& err) {
-				std::cerr << err << "\n";
-			}
-		};
-	}
+	class Logger
+	{
+	public:
+		static void logError(std::string& err) {
+			std::cerr << "error : " + err + "\n";
+		}
+	};
 }
 
 #endif 

@@ -2,12 +2,10 @@
 #define SYSTEM_H
 
 namespace Generic {
-	namespace ECS {
-		class System
-		{
-			virtual void init() = 0;
-		};
-	}
+	class System
+	{
+		virtual void init() = 0;
+	};
 }
 
 #endif

@@ -2,7 +2,7 @@
 #include <limits>
 #include <iostream>
 
-int Generic::Util::NameAllocator::getName()
+int Generic::NameAllocator::getName()
 {
     if (restoredNames.size() == 0)
     {
@@ -27,7 +27,7 @@ int Generic::Util::NameAllocator::getName()
     }
 }
 
-void Generic::Util::NameAllocator::returnName(int name)
+void Generic::NameAllocator::returnName(int name)
 {
     if (allocatedNames.find(name) != allocatedNames.end())
     {
@@ -36,4 +36,14 @@ void Generic::Util::NameAllocator::returnName(int name)
     }
     else
         std::cerr << "name not returned : name not allocated";
+}
+
+bool Generic::NameAllocator::isReserved(int name) {
+    if (allocatedNames.find(name) != allocatedNames.end())
+        return true;
+    return false;
+}
+
+void Generic::NameAllocator::setMaxCount(int _maxCount) {
+    maxCount = maxCount;
 }

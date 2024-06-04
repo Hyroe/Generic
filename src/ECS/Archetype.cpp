@@ -1,11 +1,11 @@
 #include "Generic/ECS/Archetype.h"
 #include "Generic/ECS/ComponentManager.h"
+#include "Generic/ECS/EntityManager.h"
 
-int Generic::ECS::Archetype::addEntity(std::vector<int> componentTypeIdArray) {
+int Generic::Archetype::addEntity(int entityTypeId) {
 	int entityId = entityIdAllocator.getName();
-	for (int componentTypeId : componentTypeIdArray)
-	{
-		entities[componentTypeId][entityId] = ComponentManager::getComponent(id, componentTypeId);
-	}
+	auto &&entityTypeMask = EntityManager::entityTypeMask(entityTypeId);
+	entityTypeMask.iterateBits([&, entityId, entityTypeId, this](int componentTypeId) {
+		entities[componentTypeId][entityId] = ComponentManager::getComponent(entityTypeId, componentTypeId); });
 	return entityId;
 }
