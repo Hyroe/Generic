@@ -11,6 +11,7 @@ namespace Generic {
 	{
 	public:
 		int addEntity(int entityTypeId);
+	  bool removeEntity(int entityLocalId);
 
 	private:
 		static const int maxEntityCountPerArchetype = 20;
