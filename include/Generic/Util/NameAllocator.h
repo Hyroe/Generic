@@ -4,27 +4,30 @@
 #include <unordered_map>
 
 namespace Generic {
-	namespace Util {
-		class NameAllocator
+	class NameAllocator
+	{
+	public:
+
+		NameAllocator() : maxCount(5) {
+
+		}
+
+		NameAllocator(int _maxCount) : maxCount(_maxCount)
 		{
-		public:
-			
 
-			NameAllocator(int _maxCount) : maxCount(_maxCount)
-			{
+		}
 
-			}
+		int getName();
+		void returnName(int name);
+		bool isReserved(int name);
+		void setMaxCount(int maxCount);
 
-			int getName();
-			void returnName(int name);
-
-		private:
-			int maxCount;
-			int firstUnusedName = 0;
-			std::unordered_map<int, int> restoredNames;
-			std::unordered_map<int, int> allocatedNames;
-		};
-	}
+	private:
+		int maxCount;
+		int firstUnusedName = 0;
+		std::unordered_map<int, int> restoredNames;
+		std::unordered_map<int, int> allocatedNames;
+	};
 }
 
 #endif 

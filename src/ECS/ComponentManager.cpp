@@ -1,4 +1,4 @@
 #include "Generic/ECS/ComponentManager.h"
 
-int Generic::ECS::ComponentManager::componentTypeIDCount = 0;;
-std::unordered_map<int, Generic::ECS::PoolAllocator<Component>> Generic::ECS::ComponentManager::poolAllocators;
+int Generic::ComponentManager::componentTypeIDCount = 0;;
+std::unordered_map<int, std::unique_ptr<Generic::PoolAllocator>> Generic::ComponentManager::poolAllocators;

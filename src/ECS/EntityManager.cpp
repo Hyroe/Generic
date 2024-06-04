@@ -1,8 +1,8 @@
 #include "Generic/ECS/EntityManager.h"
 
-int Generic::ECS::EntityManager::addEntity(int entityTypeId) {
+int Generic::EntityManager::addEntity(int entityTypeId) {
 	return ArchetypeManager::addEntity(entityTypeId);
 }
 
-int Generic::ECS::EntityManager::entityTypeIDCount = 0;
-std::unordered_map<int, Generic::Util::VLUI64> Generic::ECS::EntityManager::entityTypeMasks;
+int Generic::EntityManager::entityTypeIDCount = 0;
+std::unordered_map<int, Generic::VLUI64> Generic::EntityManager::entityTypeMasks;
