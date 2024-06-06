@@ -8,61 +8,93 @@
 #include "Generic/ECS/Component.h"
 #include "Generic/Util/NameAllocator.h"
 #include "Generic/Util/Util.h"
+#include "Generic/Util/RTTI.h"
+#include "Generic/ECS/EntityManager.h"
 
-const int getInt();
 
 namespace Generic {
 
 	class PoolAllocator {
 	public:
-		virtual Component* getComponent(int) = 0;
+		virtual Component* getComponent(const int&) = 0;
 		virtual void alloc() = 0;
 		virtual bool isEmpty() = 0;
+		virtual void returnComponent(const int&, Component*) = 0;
+		virtual void returnComponentWithCopy(const int&, Component*) = 0;
 	};
 
 	template <typename T>
 	class PoolAllocatorTemplate : public PoolAllocator
 	{
 	public:
-		Component* getComponent(int entityTypeId) {
-			try {
-				int block = blocks.try_emplace(entityTypeId, blockIndicesAllocator.getName()).first->second;
-				assertNoAbort([&block, this]()->bool {return block < blockCount; }, "PoolAllocator :: getComponent :: block index out of bounds,"
-					" you may increase block count for component " + GRTTI::typeName<T>() + " if required.");
-				int index = componentIndicesAllocator.try_emplace(block, blockSize).first->second.getName();
-				assertNoAbort([&index, this]()->bool {return index < blockSize; }, "PoolAllocator :: getComponent :: component index out of bounds"
-					" you may increase block size for component " + GRTTI::typeName<T>() + " if required.");
-				return reinterpret_cast<Component*>(data[block][index].get());
-			}
-			catch (std::exception& error) {
-
-			}
+		virtual Component* getComponent(const int& entityTypeId) {
+			int block = blocks[entityTypeId];
+			int index = componentIndicesAllocator[block].getName();
+			assertNoAbort([&index, this]()->bool {return index < blockSize; }, "PoolAllocator :: getComponent :: component index out of bounds"
+				" you may increase block size for component " + GRTTI::typeName<T>() + " if required.");
+			Component* c = reinterpret_cast<Component*>(&data[block][index]);
+			reservedComponentIndices[block][c] = index;
+			return c;
 		}
 
-		void alloc() {
+		virtual void alloc() {
+			int blockCount = EntityManager::entityTypeLists[GRTTI::typeId<T>()].size();
+
 			for (int i = 0; i < blockCount; i++)
 			{
-				data.push_back(std::vector<std::unique_ptr<T>>());
+				data.push_back(std::vector<T>());
 				for (int a = 0; a < blockSize; a++)
 				{
-					data[i].push_back(factory());
+					data[i].push_back(T());
 				}
-				//componentIndicesAllocator[i].setMaxCount(blockSize);
+				for (int i = 0; i < blockCount; i++)
+				{
+					blocks[EntityManager::entityTypeLists[GRTTI::typeId<T>()][i]] = i;
+				}
+				for (int i = 0; i < blockCount; i++)
+				{
+					componentIndicesAllocator[EntityManager::entityTypeLists[GRTTI::typeId<T>()][i]] =
+						NameAllocator(blockSize);
+				}
 			}
 		}
 
-		bool isEmpty() {
+		virtual bool isEmpty() {
 			return data.size() == 0;
 		}
 
+		virtual void returnComponent(const int& entityTypeId, Component* c) {
+			int componentBlock = blocks[entityTypeId];
+			int componentIndex = reservedComponentIndices[componentBlock][c];
+			int lastComponentIndex = componentIndicesAllocator[componentBlock].lastNameReserved();
+			componentIndicesAllocator[componentBlock].returnName(componentIndex);
+			reservedComponentIndices[componentBlock].erase(c);
+		}
+
+		virtual void returnComponentWithCopy(const int& entityTypeId, Component* c) {
+			int componentBlock = blocks[entityTypeId];
+			int componentIndex = reservedComponentIndices[componentBlock][c];
+			int lastComponentIndex = componentIndicesAllocator[componentBlock].lastNameReserved();
+			if (componentIndex != lastComponentIndex)
+			{
+				data[componentBlock][componentIndex] = data[componentBlock][lastComponentIndex];
+				componentIndicesAllocator[componentBlock].returnName(lastComponentIndex);
+				reservedComponentIndices[componentBlock].erase((--reservedComponentIndices[componentBlock].end())->first);
+			}
+			else
+			{
+				componentIndicesAllocator[componentBlock].returnName(componentIndex);
+				reservedComponentIndices[componentBlock].erase(c);
+			}
+		}
+
 	private:
+		static int blockCount;
 		static const int blockSize = 16;
-		static const int blockCount = 5;
-		std::function<std::unique_ptr<T>()> factory = []()->std::unique_ptr<T> {return std::make_unique<T>(); };
-		std::vector<std::vector<std::unique_ptr<T>>> data;
+		std::vector<std::vector<T>> data;
 		std::unordered_map<int, int> blocks;
 		std::unordered_map<int, NameAllocator> componentIndicesAllocator;
-		NameAllocator blockIndicesAllocator = NameAllocator(blockCount);
+		std::unordered_map<int, std::unordered_map<Component*, int>> reservedComponentIndices;
 	};
 }
 

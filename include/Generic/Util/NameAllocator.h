@@ -20,7 +20,9 @@ namespace Generic {
 		int getName();
 		void returnName(int name);
 		bool isReserved(int name);
+		bool noNameReserved();
 		void setMaxCount(int maxCount);
+		int lastNameReserved();
 
 	private:
 		int maxCount;

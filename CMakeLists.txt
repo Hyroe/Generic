@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.8)
 
 project(GameEngine)
 
-set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD 20)
 add_compile_definitions(GLEW_STATIC)
 
 file(GLOB_RECURSE SRC "${CMAKE_SOURCE_DIR}/src/*.cpp")

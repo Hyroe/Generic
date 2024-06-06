@@ -5,47 +5,66 @@
 #include "Generic/Util/RTTI.h"
 #include "Generic/ECS/ArchetypeManager.h"
 #include "Generic/Core/Logger.h"
-#include "Generic/ECS/ComponentManager.h"
 #include "Generic/Util/NameAllocator.h"
 #include "Generic/Util/Util.h"
 #include <unordered_map>
+#include <map>
+#include <vector>
+#include <functional>
 
 namespace Generic{
+
+	using ComponentTypeId = int;
+	using EntityTypeId = int;
+
 	class EntityManager
 	{
 	public:
 		template <typename T, typename ...Types>
-		static VLUI64 entityTypeMask() {
-			if constexpr (sizeof...(Types) != 0)
-				static VLUI64 entityTypeMask = (ComponentManager::typeMask<Types>() | ...) | ComponentManager::typeMask<T>();
-			else
-				static VLUI64 entityTypeMask = ComponentManager::typeMask<T>();
+		static int addEntityType() {
+			return addEntityType(getEntityTypeMask<T, Types...>());
+		}
+
+		static int addEntityType(const VLUI64& entityTypeMask) {
+			if (!entityTypeExists(entityTypeMask))
+			{
+				entityTypeMasks[entityTypeIDCount] = entityTypeMask;
+				int entityTypeId = entityTypeIDs[entityTypeMask] = entityTypeIDCount;
+				entityTypeMask.iterateBits([](const VLUI64& entityTypeMask, int componentTypeId) {
+					entityTypeLists[componentTypeId].push_back(entityTypeIDCount); });
+				ArchetypeManager::addArchetypeRecursive(entityTypeIDCount++, entityTypeMask);
+				return entityTypeId;
+			}
+			return entityTypeIDs[entityTypeMask];
+		}
+
+		template <typename T, typename ...Types>
+		static VLUI64& getEntityTypeMask() {
+			static VLUI64 entityTypeMask = (GRTTI::typeMask<Types>() | ... | GRTTI::typeMask<T>());
 			return entityTypeMask;
 		}
 
-		static VLUI64 entityTypeMask(int entityTypeId) {
-			assertNoAbort([&entityTypeId]()->bool {return entityTypeMasks.find(entityTypeId) != entityTypeMasks.end(); }, 
-				"EntityManager :: entityTypeMask :: entityTypeId not found");
-			return entityTypeMasks[entityTypeId];
+		static bool entityTypeExists(const VLUI64& mask) {
+			return entityTypeIDs.find(mask) != entityTypeIDs.end();
 		}
 
-		template <typename T, typename ...Types>
-		static int entityTypeId() {
-			static int typeID = (entityTypeMasks[entityTypeIDCount] = entityTypeMask<T, Types...>(), entityTypeIDCount++);
-			return typeID;
+		static int addEntity(int entityTypeId);
+		static void removeEntity(int entityId);
+
+		static void getArchetypesWithComponents(int included, int excluded, std::vector<Archetype*> &archetypes) {
+			//ArchetypeManager::
 		}
 
-		template <typename T, typename ...Types>
-		static int addEntity() {
-			return addEntity(entityTypeId<T, Types...>());
-		}
+		//end
 
+		static std::unordered_map<ComponentTypeId, std::vector<EntityTypeId>> entityTypeLists;
 		static const int maxEntityTypeCount = 40;
+		static int entityTypeIDCount;
 
 	private:
-		static int addEntity(int entityTypeId);
+		friend void ArchetypeManager::addArchetypeRecursive(const int& entityTypeId, const VLUI64& entityTypeMask);
 
-		static int entityTypeIDCount;
+		static std::map<VLUI64, int> entityTypeIDs;
 		static std::unordered_map<int, VLUI64> entityTypeMasks;
 	};
 }
