@@ -4,6 +4,7 @@
 #include <unordered_map>
 #include <string>
 #include <memory>
+#include <type_traits>
 #include "Generic/Core/Logger.h"
 #include "Generic/Util/RTTI.h"
 #include "Generic/Util/Util.h"
@@ -21,7 +22,7 @@ namespace Generic {
 
 		template <typename T>
 		static void removeSystem() {
-			Util::assertNoAbort([]()->bool {systems.find(GRTTI::typeName<T>()) != systems.end()}, 
+			assertNoAbort([]()->bool {systems.find(GRTTI::typeName<T>()) != systems.end(); },
 				"SystemManager :: removeSystem :: no matching system for : " + GRTTI::typeName<T>());
 			systems.erase(GRTTI::typeName<T>());
 		}
@@ -31,13 +32,16 @@ namespace Generic {
 		template <typename T>
 		static void addImpl() {
 			T sys = T();
-			assertNoAbort([&sys]()->bool {return dynamic_cast<System*>(&sys); }, GRTTI::typeName<T>() + " is not a System");
-			implementations[GRTTI::typeName<T>()] = std::make_unique<T>();
+			assertNoAbort([&sys]()->bool {return dynamic_cast<System*>(&sys); }, GRTTI::typeName<T>() + " implementation not added since it is not a System");
+			if constexpr(!std::is_base_of<System, T>::value)
+				return;
+			else
+				implementations[GRTTI::typeName<T>()] = std::make_unique<T>();
 		}
 
 		template <typename T>
 		static void removeImpl() {
-			Util::assertNoAbort([]()->bool{implementations.find(GRTTI::typeName<T>()) != implementations.end()},
+			assertNoAbort([]()->bool {implementations.find(GRTTI::typeName<T>()) != implementations.end(); },
 				"SystemManager :: removeImpl :: no matching implementation for : " + GRTTI::typeName<T>());
 			implementations.erase(GRTTI::typeName<T>());
 		}

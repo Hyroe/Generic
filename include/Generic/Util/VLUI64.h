@@ -14,6 +14,10 @@ namespace Generic {
 
 		}
 
+		VLUI64(int bitPosition) {
+			set(bitPosition);
+		}
+
 		VLUI64(std::unordered_map<unsigned int, std::uint64_t>& _words) : words(_words) {
 
 		}
@@ -37,17 +41,57 @@ namespace Generic {
 			return VLUI64(wordsCopy);
 		}
 
-		void iterateBits(std::function<void(int)> f) const{
+		VLUI64 operator& (const VLUI64& r) const {
+			auto wordsCopy = words;
+			auto rWordsCopy = r.words;
+			for (auto i = wordsCopy.begin(); i != wordsCopy.end(); i++)
+			{
+				wordsCopy[i->first] = wordsCopy[i->first] & rWordsCopy[i->first];
+			}
+			for (auto i = r.words.begin(); i != r.words.end(); i++)
+			{
+				if (wordsCopy.find(i->first) == wordsCopy.end())
+					wordsCopy[i->first] = wordsCopy[i->first] & r.words.at(i->first);
+			}
+
+			return VLUI64(wordsCopy);
+		}
+
+		VLUI64 operator! () const {
+			auto wordsCopy = words;
+			for (auto i = wordsCopy.begin(); i != wordsCopy.end(); i++)
+			{
+				wordsCopy[i->first] = ~wordsCopy[i->first];
+			}
+			return VLUI64(wordsCopy);
+		}
+
+		void iterateBits(std::function<void(const VLUI64&, int)> f) const{
 			for (auto i = words.begin(); i != words.end(); i++)
 			{
 				std::uint64_t word = i->second;
 				while (word != 0)
 				{
 					std::uint64_t bitPosition = floor(log2(word));
-					f(bitPosition + i->first * 64);
-					word -= pow(2 , bitPosition);
+					f(*this, bitPosition + i->first * 64);
+					word -= pow(2, bitPosition);
 				}
 			}
+		}
+
+		bool operator<(const VLUI64& r) const
+		{
+			auto it1 = --r.words.end();
+			auto it2 = --words.end();
+			if (it1->first == it2->first)
+				return it1->second > it2->second;
+			else if (it1->first > it2->first)
+				return true;
+			return false;
+		}
+
+		bool isEmpty() const{
+			return words.size() == 0;
 		}
 	private:
 		std::unordered_map<unsigned int, std::uint64_t> words;

@@ -44,6 +44,18 @@ bool Generic::NameAllocator::isReserved(int name) {
     return false;
 }
 
+bool Generic::NameAllocator::noNameReserved()
+{
+    return allocatedNames.size() == 0;
+}
+
 void Generic::NameAllocator::setMaxCount(int _maxCount) {
     maxCount = maxCount;
+}
+
+int Generic::NameAllocator::lastNameReserved()
+{
+    if (allocatedNames.size() == 0)
+        return -1;
+    return (--allocatedNames.end())->first;
 }

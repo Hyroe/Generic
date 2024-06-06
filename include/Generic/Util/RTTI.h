@@ -3,7 +3,6 @@
 
 #include <typeinfo>
 #include <string>
-#include "Generic/Util/Util.h"
 #include "Generic/Util/VLUI64.h"
 
 namespace Generic {
@@ -11,26 +10,30 @@ namespace Generic {
 	public:
 		template <typename T>
 		static std::string typeName() {
-			static std::string TypeName(typeid(T).name());
-			static bool called = false;
-			if (called == false)
-				TypeName.erase(0, 6);
-			else
-				return TypeName;
-			called = true;
+			static std::string&& name = typeid(T).name();
+			static std::string TypeName = name.erase(0, 6);
 			return TypeName;
 		}
 
-		static VLUI64 typeMask(std::uint64_t typeId) {
-			static VLUI64 TypeMask;
-			static bool called = false;
-			if (called == false)
-				TypeMask.set(typeId);
-			else
-				return TypeMask;
-			called = true;
+		template <typename T>
+		static int typeId() {
+			static int typeID = typeIDCount++;
+			return typeID;
+		}
+
+		template <typename T>
+		static VLUI64 typeMask() {
+			static VLUI64&& TypeMask = VLUI64(typeId<T>());
 			return TypeMask;
 		}
+
+		static VLUI64 typeMask(int typeId) {
+			static VLUI64&& TypeMask = VLUI64(typeId);
+			return TypeMask;
+		}
+
+	private:
+		static int typeIDCount;
 	};
 }
 

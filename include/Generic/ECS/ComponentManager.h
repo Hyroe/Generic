@@ -17,40 +17,37 @@ namespace Generic {
 		static void alloc() {
 			for (auto &poolAllocator : poolAllocators)
 			{
-				poolAllocator.second.get()->alloc();
+				poolAllocator.second->alloc();
 			}
 		}
 
 		template <typename T>
 		static void registerComponentType() {
-			assertNoAbort([]()->bool {return std::is_base_of<Component, T>::value; }, "ComponentManager :: registerComponentType :: " + GRTTI::typeName<T>() + " is not a component type");
-			poolAllocators[typeId<T>()] = std::make_unique<PoolAllocatorTemplate<T>>();
-		}
-
-		template <typename T>
-		static VLUI64 typeMask() {
-			return GRTTI::typeMask(typeId<T>());
-		}
-
-		template <typename T>
-		static int typeId() {
-			static int componentTypeID = componentTypeIDCount++;
-			return componentTypeID;
+			assertNoAbort([]()->bool {return std::is_base_of<Component, T>::value; }, 
+				"ComponentManager :: registerComponentType :: " + GRTTI::typeName<T>() + " doesnt inherit from Component");
+			componentTypeSizes[GRTTI::typeId<T>()] = sizeof(T);
+			poolAllocators[GRTTI::typeId<T>()] = std::make_unique<PoolAllocatorTemplate<T>>();
 		}
 
 		static Component* getComponent(int entityTypeId, int componentTypeId) {
-			assertNoAbort([&componentTypeId]()->bool {return componentTypeId < maxComponentTypeCount; },
-				"ComponentManager :: getComponent :: component type id out of bounds"
-				" you may increase maximum component type count if required.");
-			assert(!poolAllocators[componentTypeId].get()->isEmpty() && "ComponentManager :: getComponent :: pool allocator empty,"
-			" ensure alloc is called after all component types registration");
-			Component* c = poolAllocators[componentTypeId].get()->getComponent(entityTypeId);
+			assert(!poolAllocators[componentTypeId]->isEmpty() && "ComponentManager :: getComponent :: pool empty,"
+			" ensure ComponentManager::alloc is called right after all component types registrations");
+			Component* c = poolAllocators[componentTypeId]->getComponent(entityTypeId);
 			c->reset();
 			return c;
 		}
 
+		static void returnComponent(int entityTypeId, int componentTypeId, Component* c) {
+			poolAllocators[componentTypeId]->returnComponent(entityTypeId, c);
+		}
+
+		static void returnComponentWithCopy(int entityTypeId, int componentTypeId, Component* c) {
+			poolAllocators[componentTypeId]->returnComponentWithCopy(entityTypeId, c);
+		}
+
+		static std::unordered_map<int, int> componentTypeSizes;
+
 	private:
-		static const int maxComponentTypeCount = 5;
 		static int componentTypeIDCount;
 		static std::unordered_map<int, std::unique_ptr<PoolAllocator>> poolAllocators;
 	};
