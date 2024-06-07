@@ -48,3 +48,11 @@ bool Generic::Archetype::removeEntity(const int& entityTypeId, const int &entity
 void Generic::Archetype::addLink(const VLUI64& mask, Archetype* archetype) {
 	superArchetypes[mask] = archetype;
 }
+
+
+Component* Generic::Archetype::getComponent(const int& entityId, const int& componentTypeId, std::string&& name)
+{
+	assertNoAbort([this, &componentTypeId]()->bool {return entities.find(componentTypeId) != entities.end(); },
+		"Archetype :: getComponent :: no such component type found in archetype " + name);
+	return entities[componentTypeId][entityId];
+}
