@@ -81,8 +81,8 @@ namespace Generic {
 
 		bool operator<(const VLUI64& r) const
 		{
-			auto it1 = --r.words.end();
-			auto it2 = --words.end();
+			auto it1 = std::prev(r.words.end());
+			auto it2 = std::prev(words.end());
 			if (it1->first == it2->first)
 				return it1->second > it2->second;
 			else if (it1->first > it2->first)

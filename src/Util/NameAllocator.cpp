@@ -57,5 +57,5 @@ int Generic::NameAllocator::lastNameReserved()
 {
     if (allocatedNames.size() == 0)
         return -1;
-    return (--allocatedNames.end())->first;
+    return (std::prev(allocatedNames.end())->first)->first;
 }

@@ -9,7 +9,7 @@ void Generic::VLUI64::set(std::uint64_t bitIndex){
 
 void Generic::VLUI64::clear(std::uint64_t bitIndex){
 	int wordToClear = bitIndex / 64;
-	words[wordToClear] = words[wordToClear] & ~(bitIndex % 64);
+	words[wordToClear] = words[wordToClear] & ~(int)pow(2, bitIndex % 64);
 	if (words[wordToClear] == 0)
 		words.erase(wordToClear);
 }

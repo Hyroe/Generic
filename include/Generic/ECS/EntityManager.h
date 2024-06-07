@@ -11,6 +11,7 @@
 #include <map>
 #include <vector>
 #include <functional>
+#include <string>
 
 namespace Generic{
 
@@ -38,18 +39,31 @@ namespace Generic{
 			return entityTypeIDs[entityTypeMask];
 		}
 
+		static void setEntityTypeName(const int& entityTypeId, std::string&& name) {
+			ArchetypeManager::addEntityTypeName(entityTypeId, std::move(name));
+		}
+
 		template <typename T, typename ...Types>
-		static VLUI64& getEntityTypeMask() {
-			static VLUI64 entityTypeMask = (GRTTI::typeMask<Types>() | ... | GRTTI::typeMask<T>());
-			return entityTypeMask;
+		static int addEntity() {
+			const VLUI64& entityTypeMask = getEntityTypeMask<T, Types...>();
+			assertNoAbort([&entityTypeMask]()->bool {return entityTypeExists(entityTypeMask); },
+				"EntityManager :: addEntity :: entityType " + ((GRTTI::typeName<Types>() + " ") + ... + GRTTI::typeName<T>()) + " not found");
+			int entityTypeId = entityTypeIDs[entityTypeMask];
+			return addEntity(entityTypeId);
+		}
+
+		static int addEntity(int entityTypeId);
+		static void removeEntity(int entityId);
+
+		template <typename T>
+		static T* getComponent(int &entityId) {
+			return (T*)ArchetypeManager::getComponent(entityId, GRTTI::typeId<T>());
 		}
 
 		static bool entityTypeExists(const VLUI64& mask) {
 			return entityTypeIDs.find(mask) != entityTypeIDs.end();
 		}
 
-		static int addEntity(int entityTypeId);
-		static void removeEntity(int entityId);
 
 		static void getArchetypesWithComponents(int included, int excluded, std::vector<Archetype*> &archetypes) {
 			//ArchetypeManager::
@@ -62,7 +76,13 @@ namespace Generic{
 		static int entityTypeIDCount;
 
 	private:
-		friend void ArchetypeManager::addArchetypeRecursive(const int& entityTypeId, const VLUI64& entityTypeMask);
+		template <typename T, typename ...Types>
+		static VLUI64& getEntityTypeMask() {
+			static VLUI64 entityTypeMask = (GRTTI::typeMask<Types>() | ... | GRTTI::typeMask<T>());
+			return entityTypeMask;
+		}
+
+		//friend void ArchetypeManager::addArchetypeRecursive(const int& entityTypeId, const VLUI64& entityTypeMask);
 
 		static std::map<VLUI64, int> entityTypeIDs;
 		static std::unordered_map<int, VLUI64> entityTypeMasks;

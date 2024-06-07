@@ -28,7 +28,7 @@ void Generic::ArchetypeManager::removeEntity(int entityId) {
     switch (lastEntityCopied)
     {
     case true:
-        entityLocations[(--entityLocations.end())->first].second = entityLocalId;
+        entityLocations[std::prev(entityLocations.end())->first].second = entityLocalId;
         break;
     }
 
@@ -54,6 +54,17 @@ void Generic::ArchetypeManager::addArchetypeRecursive(const int& entityTypeId, c
     entityTypeMask.iterateBits(f);
 }
 
+Component* Generic::ArchetypeManager::getComponent(const int& entityId, const int& componentTypeId)
+{
+    int entityType = entityLocations[entityId].first;
+    return archetypes[entityType].getComponent(entityId, componentTypeId, std::move(entityTypeNames[entityType]));
+}
+
+void Generic::ArchetypeManager::addEntityTypeName(const int& entityTypeId, std::string &&name)
+{
+    entityTypeNames[entityTypeId] = name;
+}
+
 void Generic::ArchetypeManager::getArchetypesWithComponents(int _archetype, const VLUI64&& included, const VLUI64& excluded, std::vector<Archetype*>& _archetypes) {
     //static Archetype& archetype = (archetypes[_archetype].linked == true) ? linkArchetype(archetypes[_archetype], included) : archetypes[_archetype];
     
@@ -66,3 +77,4 @@ std::unordered_map<int, std::vector<int>> Generic::ArchetypeManager::componentTy
 std::unordered_map<int, Generic::Archetype> Generic::ArchetypeManager::archetypes;
 Generic::NameAllocator Generic::ArchetypeManager::entityIDsAllocator = Generic::NameAllocator(maxEntityCount);
 std::unordered_map<int, std::pair<int, int>> Generic::ArchetypeManager::entityLocations;
+std::unordered_map<int, std::string> Generic::ArchetypeManager::entityTypeNames;

@@ -7,7 +7,7 @@
 
 using namespace Generic;
 
-class Renderer : public Component {   };
+class Renderer : public Component {public: int var1 = 5; };
 class glRenderer : public Component {   };
 class Physics : public Component {   };
 class Shader {};
@@ -21,13 +21,15 @@ int main()
 	ComponentManager::registerComponentType<Renderer>();
 	ComponentManager::registerComponentType<glRenderer>();
 	ComponentManager::registerComponentType<Physics>();
-	std::cout << EntityManager::addEntityType<Renderer, glRenderer>() << std::endl;
-	std::cout << EntityManager::addEntityType<Renderer>() << std::endl;
-	std::cout << EntityManager::addEntityType<glRenderer>() << std::endl;
-	std::cout << EntityManager::addEntityType<Renderer, glRenderer, Physics>() << std::endl;
-	std::cout << EntityManager::addEntityType<Renderer, Physics>() << std::endl;
-	std::cout << EntityManager::addEntityType<glRenderer, Physics>() << std::endl;
-	std::cout << EntityManager::addEntityType<Physics>() << std::endl;
+	int entityTypeId = EntityManager::addEntityType<Renderer, glRenderer, Physics>();
 	ComponentManager::alloc();
+	int entity1 = EntityManager::addEntity<Physics, Renderer, glRenderer>();
+	EntityManager::addEntity<Physics, glRenderer>();
+	EntityManager::setEntityTypeName(entityTypeId, "basic");
+	EntityManager::addEntity<Renderer, glRenderer>();
+	EntityManager::addEntity<Physics>();
+	EntityManager::addEntity<glRenderer>();
+	EntityManager::addEntity<Renderer>();
+	Mesh* c = EntityManager::getComponent<Mesh>(entity1);
 	return 0;
 }
